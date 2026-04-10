@@ -9,7 +9,6 @@ import javax.swing.Timer;
 
 public class LexiGuess extends JFrame {
 
-   
     private static final String[] EASY_WORDS = {
         "CODE","LOOP","BYTE","CHAR","TYPE","VOID","BOOL","ENUM","FUNC","HEAP",
         "TREE","NODE","LINK","PUSH","PULL","FORK","PIPE","PORT","HASH","LOCK",
@@ -45,11 +44,10 @@ public class LexiGuess extends JFrame {
     private static final Color MEDIUM_CLR     = new Color(190, 155, 40);
     private static final Color HARD_CLR       = new Color(180, 70, 70);
 
-    
     private static final String SOUND_CORRECT  = "chrisiex1-correct-156911 (1).wav";
     private static final String SOUND_LOSE     = "freesound_community-080047_lose_funny_re.wav";
     private static final String SOUND_KEYCLICK = "creatorshome-keyboard-click-327728.wav";
-    private static final String SOUND_START = "creatorshome-keyboard-click-327728.wav";
+    private static final String SOUND_START    = "creatorshome-keyboard-click-327728.wav";
 
     private String targetWord = "";
     private String difficulty = "EASY";
@@ -86,7 +84,6 @@ public class LexiGuess extends JFrame {
     private JPanel keyboardPanel;
     private JPanel leaderboardListPanel;
 
-    
     private void playSound(String filePath) {
         new Thread(() -> {
             try {
@@ -99,7 +96,6 @@ public class LexiGuess extends JFrame {
                 Clip clip = AudioSystem.getClip();
                 clip.open(audioIn);
                 clip.start();
-                
                 clip.addLineListener(event -> {
                     if (event.getType() == LineEvent.Type.STOP) {
                         clip.close();
@@ -140,7 +136,8 @@ public class LexiGuess extends JFrame {
             this.bottom = bottom;
             setOpaque(false);
         }
-        @Override protected void paintComponent(Graphics g) {
+        @Override
+        protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g;
             g2.setPaint(new GradientPaint(0, 0, top, 0, getHeight(), bottom));
             g2.fillRect(0, 0, getWidth(), getHeight());
@@ -164,20 +161,18 @@ public class LexiGuess extends JFrame {
         dialog.setLocationRelativeTo(this);
 
         JPanel panel = new JPanel() {
-            @Override protected void paintComponent(Graphics g) {
+            @Override
+            protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-               
                 g2.setColor(BG_PANEL);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 24, 24);
-                
                 g2.setStroke(new BasicStroke(2f));
                 g2.setColor(accentColor);
                 g2.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, 24, 24);
-               
-                g2.setPaint(new GradientPaint(getWidth()/2 - 80, 0, new Color(accentColor.getRed(), accentColor.getGreen(), accentColor.getBlue(), 0),
-                    getWidth()/2, 0, accentColor,
-                    true));
+                g2.setPaint(new GradientPaint(getWidth()/2 - 80, 0,
+                    new Color(accentColor.getRed(), accentColor.getGreen(), accentColor.getBlue(), 0),
+                    getWidth()/2, 0, accentColor, true));
                 g2.fillRect(getWidth()/2 - 80, 2, 160, 3);
             }
         };
@@ -185,7 +180,6 @@ public class LexiGuess extends JFrame {
         panel.setBorder(BorderFactory.createEmptyBorder(35, 40, 30, 40));
         panel.setOpaque(false);
 
-      
         JLabel ornament = new JLabel("--- \u2726 ---", SwingConstants.CENTER);
         ornament.setFont(new Font("Serif", Font.PLAIN, 14));
         ornament.setForeground(GOLD_DIM);
@@ -193,7 +187,6 @@ public class LexiGuess extends JFrame {
         panel.add(ornament);
         panel.add(Box.createVerticalStrut(12));
 
-        
         JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
         titleLabel.setFont(new Font("Serif", Font.BOLD | Font.ITALIC, 32));
         titleLabel.setForeground(accentColor.equals(RED_DANGER) ? RED_DANGER : GOLD);
@@ -201,7 +194,6 @@ public class LexiGuess extends JFrame {
         panel.add(titleLabel);
         panel.add(Box.createVerticalStrut(15));
 
-        
         JLabel msgLabel = new JLabel(message, SwingConstants.CENTER);
         msgLabel.setFont(new Font("Serif", Font.PLAIN, 15));
         msgLabel.setForeground(TEXT_MUTED);
@@ -209,7 +201,6 @@ public class LexiGuess extends JFrame {
         panel.add(msgLabel);
         panel.add(Box.createVerticalStrut(8));
 
-        
         JLabel wordLabel = new JLabel(word, SwingConstants.CENTER);
         wordLabel.setFont(new Font("Monospaced", Font.BOLD, 36));
         wordLabel.setForeground(TEXT_WHITE);
@@ -217,7 +208,6 @@ public class LexiGuess extends JFrame {
         panel.add(wordLabel);
         panel.add(Box.createVerticalStrut(8));
 
-       
         JLabel subLabel = new JLabel(subMessage, SwingConstants.CENTER);
         subLabel.setFont(new Font("Serif", Font.ITALIC, 13));
         subLabel.setForeground(GOLD_DIM);
@@ -225,7 +215,6 @@ public class LexiGuess extends JFrame {
         panel.add(subLabel);
         panel.add(Box.createVerticalStrut(25));
 
-       
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         btnPanel.setOpaque(false);
 
@@ -249,17 +238,17 @@ public class LexiGuess extends JFrame {
         dialog.setVisible(true);
     }
 
-
-        private JButton makeFancyButton(String text, Color bgColor, Color borderColor) {
-            JButton btn = new JButton(text) {
-                @Override protected void paintComponent(Graphics g) {
-                    Graphics2D g2 = (Graphics2D) g;
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2.setColor(bgColor);
-                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
-                    super.paintComponent(g);
-                }
-            };
+    private JButton makeFancyButton(String text, Color bgColor, Color borderColor) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(bgColor);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                super.paintComponent(g);
+            }
+        };
         btn.setFont(new Font("Serif", Font.BOLD, 13));
         btn.setForeground(TEXT_WHITE);
         btn.setContentAreaFilled(false);
@@ -341,7 +330,8 @@ public class LexiGuess extends JFrame {
         center.add(Box.createVerticalStrut(40));
 
         JButton startBtn = new JButton("START GAME") {
-            @Override protected void paintComponent(Graphics g) {
+            @Override
+            protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 GradientPaint gp = new GradientPaint(0, 0, GOLD, 0, getHeight(), GOLD_DIM);
@@ -478,8 +468,9 @@ public class LexiGuess extends JFrame {
 
     private JPanel makeDiffCard(String diff, String rankTitle, String wordInfo, String attempts, Color accent, String stars) {
         JPanel card = new JPanel() {
-            @Override protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D)g;
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 GradientPaint bg = new GradientPaint(0, 0,
                     new Color(accent.getRed()/7, accent.getGreen()/7, accent.getBlue()/7),
@@ -517,9 +508,10 @@ public class LexiGuess extends JFrame {
         rankLbl.setAlignmentX(CENTER_ALIGNMENT);
 
         JPanel sepLine = new JPanel() {
-            @Override protected void paintComponent(Graphics g) {
+            @Override
+            protected void paintComponent(Graphics g) {
                 g.setColor(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 80));
-                g.drawLine(10,0,getWidth()-10,0);
+                g.drawLine(10, 0, getWidth()-10, 0);
             }
         };
         sepLine.setOpaque(false);
@@ -538,11 +530,12 @@ public class LexiGuess extends JFrame {
         attLbl.setAlignmentX(CENTER_ALIGNMENT);
 
         JButton playBtn = new JButton("Play  ->") {
-            @Override protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D)g;
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(accent);
-                g2.fillRoundRect(0,0,getWidth(),getHeight(),8,8);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
                 super.paintComponent(g);
             }
         };
@@ -844,8 +837,9 @@ public class LexiGuess extends JFrame {
         inputRow.setOpaque(false);
 
         inputField = new JTextField(10) {
-            @Override protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D)g;
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(new Color(20, 24, 38));
                 g2.fillRoundRect(0,0,getWidth(),getHeight(),8,8);
@@ -870,7 +864,7 @@ public class LexiGuess extends JFrame {
                 if (inputField.getText().length() >= wordLength) e.consume();
                 else {
                     e.setKeyChar(Character.toUpperCase(c));
-                    playSound("click.wav"); 
+                    playSound("click.wav");
                 }
             }
             public void keyPressed(KeyEvent e) {
@@ -911,8 +905,9 @@ public class LexiGuess extends JFrame {
             rowP.setOpaque(false);
             for (char ch : row.toCharArray()) {
                 JLabel k = new JLabel(String.valueOf(ch), SwingConstants.CENTER) {
-                    @Override protected void paintComponent(Graphics g) {
-                        Graphics2D g2 = (Graphics2D)g;
+                    @Override
+                    protected void paintComponent(Graphics g) {
+                        Graphics2D g2 = (Graphics2D) g;
                         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                         g2.setColor(getBackground());
                         g2.fillRoundRect(0,0,getWidth(),getHeight(),6,6);
@@ -934,10 +929,18 @@ public class LexiGuess extends JFrame {
 
     private void updateKeyboard() {
         for (Map.Entry<Character, JLabel> e : keyLabels.entrySet()) {
-            char ch = e.getKey(); JLabel lbl = e.getValue();
-            if (correctLetters.contains(ch)) { lbl.setBackground(GREEN_CORRECT); lbl.setBorder(BorderFactory.createLineBorder(GREEN_CORRECT.brighter(),1)); }
-            else if (presentLetters.contains(ch)) { lbl.setBackground(YELLOW_PRESENT); lbl.setBorder(BorderFactory.createLineBorder(YELLOW_PRESENT.brighter(),1)); }
-            else if (absentLetters.contains(ch)) { lbl.setBackground(GRAY_ABSENT); lbl.setForeground(TEXT_MUTED); }
+            char ch = e.getKey();
+            JLabel lbl = e.getValue();
+            if (correctLetters.contains(ch)) {
+                lbl.setBackground(GREEN_CORRECT);
+                lbl.setBorder(BorderFactory.createLineBorder(GREEN_CORRECT.brighter(), 1));
+            } else if (presentLetters.contains(ch)) {
+                lbl.setBackground(YELLOW_PRESENT);
+                lbl.setBorder(BorderFactory.createLineBorder(YELLOW_PRESENT.brighter(), 1));
+            } else if (absentLetters.contains(ch)) {
+                lbl.setBackground(GRAY_ABSENT);
+                lbl.setForeground(TEXT_MUTED);
+            }
         }
         keyboardPanel.repaint();
     }
@@ -978,8 +981,9 @@ public class LexiGuess extends JFrame {
         for (int r = 0; r < maxAttempts; r++) {
             for (int c = 0; c < wordLength; c++) {
                 JLabel tile = new JLabel("", SwingConstants.CENTER) {
-                    @Override protected void paintComponent(Graphics g) {
-                        Graphics2D g2 = (Graphics2D)g;
+                    @Override
+                    protected void paintComponent(Graphics g) {
+                        Graphics2D g2 = (Graphics2D) g;
                         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                         g2.setColor(getBackground());
                         g2.fillRoundRect(0,0,getWidth(),getHeight(),10,10);
@@ -1018,8 +1022,8 @@ public class LexiGuess extends JFrame {
             JLabel tile = tiles[currentAttempt][c];
             tile.setText(String.valueOf(guess.charAt(c)));
             tile.setBorder(null);
-            if (fb[c]==2) { tile.setBackground(GREEN_CORRECT); correctLetters.add(guess.charAt(c)); }
-            else if (fb[c]==1) { tile.setBackground(YELLOW_PRESENT); presentLetters.add(guess.charAt(c)); }
+            if (fb[c] == 2) { tile.setBackground(GREEN_CORRECT); correctLetters.add(guess.charAt(c)); }
+            else if (fb[c] == 1) { tile.setBackground(YELLOW_PRESENT); presentLetters.add(guess.charAt(c)); }
             else { tile.setBackground(GRAY_ABSENT); absentLetters.add(guess.charAt(c)); }
             tile.repaint();
         }
@@ -1038,7 +1042,7 @@ public class LexiGuess extends JFrame {
 
         if (allCorrect) {
             gameWon = true;
-            playSound("correct.wav"); 
+            playSound("correct.wav");
             int remaining = maxAttempts - currentAttempt;
             int base = difficulty.equals("EASY") ? 100 : difficulty.equals("MEDIUM") ? 200 : 300;
             int bonus = difficulty.equals("EASY") ? 10 : difficulty.equals("MEDIUM") ? 20 : 30;
@@ -1052,16 +1056,13 @@ public class LexiGuess extends JFrame {
             sessionScoreLabel.setText("Session Score: " + sessionScore + "  |  Stage: " + currentStage);
             inputField.setEnabled(false); submitBtn.setEnabled(false);
             addToLeaderboard(currentPlayerName, sessionScore, currentStage);
-            
-            SwingUtilities.invokeLater(() -> {
-                showEndGameDialog(
-                    "\u2726 You Win! \u2726",
-                    "Congratulations! You guessed the word:",
-                    targetWord,
-                    "+" + roundScore + " pts  |  Total: " + sessionScore,
-                    GREEN_CORRECT, "Play Again"
-                );
-            });
+            SwingUtilities.invokeLater(() -> showEndGameDialog(
+                "\u2726 You Win! \u2726",
+                "Congratulations! You guessed the word:",
+                targetWord,
+                "+" + roundScore + " pts  |  Total: " + sessionScore,
+                GREEN_CORRECT, "Play Again"
+            ));
         } else if (currentAttempt >= maxAttempts) {
             gameOver = true;
             playSound("lose.wav");
@@ -1072,16 +1073,13 @@ public class LexiGuess extends JFrame {
             inGameScoreLabel.setText("Score: 0");
             sessionScoreLabel.setText("Session Score: 0  |  Stage: " + currentStage);
             inputField.setEnabled(false); submitBtn.setEnabled(false);
-           
-            SwingUtilities.invokeLater(() -> {
-                showEndGameDialog(
-                    "Game Over",
-                    "The word was:",
-                    targetWord,
-                    "Your score has been reset.",
-                    RED_DANGER, "Retry"
-                );
-            });
+            SwingUtilities.invokeLater(() -> showEndGameDialog(
+                "Game Over",
+                "The word was:",
+                targetWord,
+                "Your score has been reset.",
+                RED_DANGER, "Retry"
+            ));
         } else {
             int left = maxAttempts - currentAttempt;
             messageLabel.setText("Attempt " + currentAttempt + " of " + maxAttempts + "  |  " + left + " remaining");
@@ -1101,25 +1099,30 @@ public class LexiGuess extends JFrame {
         return wrongs;
     }
 
-    private void addToLeaderboard(String name, int score, int stage) {
+    private void addToLeaderboard(String name, int sc, int stage) {
         boolean found = false;
         for (LeaderboardEntry entry : leaderboard) {
             if (entry.name.equals(name)) {
-                if (score > entry.score) { entry.score = score; entry.stage = stage; }
+                if (sc > entry.score) { entry.score = sc; entry.stage = stage; }
                 found = true; break;
             }
         }
-        if (!found) leaderboard.add(new LeaderboardEntry(name, score, stage));
+        if (!found) leaderboard.add(new LeaderboardEntry(name, sc, stage));
     }
 
     private int[] computeFeedback(String guess, String target) {
         int len = target.length();
         int[] result = new int[len];
         boolean[] tUsed = new boolean[len], gUsed = new boolean[len];
-        for (int i=0;i<len;i++) if (guess.charAt(i)==target.charAt(i)) { result[i]=2; tUsed[i]=gUsed[i]=true; }
-        for (int i=0;i<len;i++) { if (gUsed[i]) continue;
-            for (int j=0;j<len;j++) { if (tUsed[j]) continue;
-                if (guess.charAt(i)==target.charAt(j)) { result[i]=1; tUsed[j]=true; break; } } }
+        for (int i = 0; i < len; i++)
+            if (guess.charAt(i) == target.charAt(i)) { result[i] = 2; tUsed[i] = gUsed[i] = true; }
+        for (int i = 0; i < len; i++) {
+            if (gUsed[i]) continue;
+            for (int j = 0; j < len; j++) {
+                if (tUsed[j]) continue;
+                if (guess.charAt(i) == target.charAt(j)) { result[i] = 1; tUsed[j] = true; break; }
+            }
+        }
         return result;
     }
 
@@ -1130,62 +1133,77 @@ public class LexiGuess extends JFrame {
         }
     }
 
-    
+    // ── HangmanPanel ─────────────────────────────────────────────────────────────
     class HangmanPanel extends JPanel {
         private int wrongGuesses = 0;
-        private int animatingPart = 0;
-        private float dropProgress = 1.0f;
         private Timer dropTimer;
-       
-        private int[] partDropOffsets = new int[7];
-       
-        private boolean[] partGone = new boolean[7];
+
+        // Per-part animation state
+        private final double[] dropY     = new double[7];
+        private final double[] flatAngle = new double[7];
+        private final double[] dropVel   = new double[7];
+        private final boolean[] tipping  = new boolean[7];
+
+        private static final int GROUND_Y = 255;
+        private static final int[] TIP_Y  = { 0, 190, 190, 140, 140, 155, 100 };
+        private static final double[] FLAT_ANGLE_FINAL = { 0,
+            Math.toDegrees(Math.atan2(35, 20)),
+            Math.toDegrees(Math.atan2(35, 20)),
+            Math.toDegrees(Math.atan2(25, 25)),
+            Math.toDegrees(Math.atan2(25, 25)),
+            90.0,
+            90.0
+        };
+        private static final int[]    ROT_DIR          = { 0, +1, -1, +1, -1, +1, +1 };
 
         HangmanPanel() {
             setOpaque(false);
             setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(GOLD_DIM, 1),
-                BorderFactory.createEmptyBorder(10,10,10,10)
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
             ));
         }
 
         void resetAnimation() {
             wrongGuesses = 0;
-            animatingPart = 0;
-            dropProgress = 1.0f;
-            for (int i = 0; i < partDropOffsets.length; i++) {
-                partDropOffsets[i] = 0;
-                partGone[i] = false;
-            }
             if (dropTimer != null) dropTimer.stop();
+            for (int i = 0; i < 7; i++) {
+                dropY[i] = 0; flatAngle[i] = 0; dropVel[i] = 0; tipping[i] = false;
+            }
         }
 
         void triggerDropAnimation(int partNumber) {
             if (partNumber < 1 || partNumber > 6) return;
             wrongGuesses = partNumber;
-            animatingPart = partNumber;
-            dropProgress = 0.0f;
-            partDropOffsets[partNumber] = 0;
+            final int p = partNumber;
+
+            dropY[p]     = 0;
+            flatAngle[p] = 0;
+            dropVel[p]   = 2.0;
+            tipping[p]   = false;
+
+            final int maxDrop = GROUND_Y - TIP_Y[p];
 
             if (dropTimer != null && dropTimer.isRunning()) dropTimer.stop();
 
-            dropTimer = new Timer(16, new ActionListener() {
-                float velocity = 2;
-                float gravity = 1.2f;
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    velocity += gravity;
-                    partDropOffsets[animatingPart] += (int) velocity;
-
-                    
-                    if (partDropOffsets[animatingPart] >= 300) {
-                        partGone[animatingPart] = true;
-                        dropProgress = 1.0f;
+            dropTimer = new Timer(16, e -> {
+                if (!tipping[p]) {
+                    dropVel[p] += 0.9;
+                    dropY[p]   += dropVel[p];
+                    if (dropY[p] >= maxDrop) {
+                        dropY[p]   = maxDrop;
+                        tipping[p] = true;
+                        dropVel[p] = 1.5;
+                    }
+                } else {
+                    dropVel[p]   += 0.4;
+                    flatAngle[p] += dropVel[p];
+                    if (flatAngle[p] >= FLAT_ANGLE_FINAL[p]) {
+                        flatAngle[p] = FLAT_ANGLE_FINAL[p];
                         ((Timer) e.getSource()).stop();
                     }
-                    repaint();
                 }
+                repaint();
             });
             dropTimer.start();
         }
@@ -1198,60 +1216,71 @@ public class LexiGuess extends JFrame {
 
             int w = getWidth(), h = getHeight();
 
-            
+            // ── Gallows ──────────────────────────────────────────────────────────
             g2.setColor(GOLD_DIM);
             g2.setStroke(new BasicStroke(3f));
-            g2.drawLine(30, h - 30, w - 30, h - 30); 
-            g2.drawLine(60, h - 30, 60, 40);          
-            g2.drawLine(60, 40, w / 2 + 20, 40);     
-            g2.drawLine(w / 2 + 20, 40, w / 2 + 20, 70); 
+            g2.drawLine(30,     h - 30, w - 30, h - 30);
+            g2.drawLine(60,     h - 30, 60,     40);
+            g2.drawLine(60,     40,     w/2+20, 40);
+            g2.drawLine(w/2+20, 40,     w/2+20, 70);
 
-            int cx = w / 2 + 20;
+            final int cx = w / 2 + 20;
             g2.setColor(TEXT_WHITE);
             g2.setStroke(new BasicStroke(2f));
 
-           
-            g2.setClip(0, 0, w, h);
+            // Right leg
+            drawLimb(g2, 1, cx, 155, cx + 20, 190,
+                (g3, dy) -> g3.drawLine(cx, 155 + dy, cx + 20, 190 + dy));
 
-           
-            if (!partGone[6]) {
-                int o = partDropOffsets[6];
-                g2.drawOval(cx - 15, 70 + o, 30, 30);
-               
-                g2.fillOval(cx - 7, 80 + o, 4, 4);   
-                g2.fillOval(cx + 3, 80 + o, 4, 4);   
-                g2.drawArc(cx - 7, 85 + o, 14, 8, 0, -180); 
+            // Left leg
+            drawLimb(g2, 2, cx, 155, cx - 20, 190,
+                (g3, dy) -> g3.drawLine(cx, 155 + dy, cx - 20, 190 + dy));
+
+            // Right arm
+            drawLimb(g2, 3, cx, 115, cx + 25, 140,
+                (g3, dy) -> g3.drawLine(cx, 115 + dy, cx + 25, 140 + dy));
+
+            // Left arm
+            drawLimb(g2, 4, cx, 115, cx - 25, 140,
+                (g3, dy) -> g3.drawLine(cx, 115 + dy, cx - 25, 140 + dy));
+
+            // Body
+            drawLimb(g2, 5, cx, 100, cx, 155,
+                (g3, dy) -> g3.drawLine(cx, 100 + dy, cx, 155 + dy));
+
+            // Head
+            drawLimb(g2, 6, cx, 70, cx, 100,
+                (g3, dy) -> {
+                    g3.drawOval(cx - 15, 70 + dy, 30, 30);
+                    g3.fillOval(cx - 7,  80 + dy,  4,  4);
+                    g3.fillOval(cx + 3,  80 + dy,  4,  4);
+                    g3.drawArc( cx - 7,  85 + dy, 14,  8, 0, -180);
+                });
+        }
+
+        @FunctionalInterface
+        interface LimbDrawer {
+            void draw(Graphics2D g, int dropOffset);
+        }
+
+        private void drawLimb(Graphics2D g2, int part,
+                               int attachX, int attachY,
+                               int tipX,    int tipY,
+                               LimbDrawer drawer) {
+            int   dy    = (int) dropY[part];
+            double ang  = flatAngle[part];
+
+            Graphics2D g3 = (Graphics2D) g2.create();
+
+            if (ang > 0.0) {
+                double pivotX = tipX;
+                double pivotY = tipY + dy;
+                double rotRad = Math.toRadians(ang * ROT_DIR[part]);
+                g3.rotate(rotRad, pivotX, pivotY);
             }
 
-          
-            if (!partGone[5]) {
-                int o = partDropOffsets[5];
-                g2.drawLine(cx, 100 + o, cx, 155 + o);
-            }
-
-          
-            if (!partGone[4]) {
-                int o = partDropOffsets[4];
-                g2.drawLine(cx, 115 + o, cx - 25, 140 + o);
-            }
-
-          
-            if (!partGone[3]) {
-                int o = partDropOffsets[3];
-                g2.drawLine(cx, 115 + o, cx + 25, 140 + o);
-            }
-
-            
-            if (!partGone[2]) {
-                int o = partDropOffsets[2];
-                g2.drawLine(cx, 155 + o, cx - 20, 190 + o);
-            }
-
-          
-            if (!partGone[1]) {
-                int o = partDropOffsets[1];
-                g2.drawLine(cx, 155 + o, cx + 20, 190 + o);
-            }
+            drawer.draw(g3, dy);
+            g3.dispose();
         }
     }
 
