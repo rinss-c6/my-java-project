@@ -1,29 +1,32 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.util.*;
+import java.util.List;
+import javax.sound.sampled.*;
 import javax.swing.*;
+import javax.swing.Timer;
 
 public class LexiGuess extends JFrame {
 
-    // ─── Word Banks ──────────────────────────────────────────────────────────
+   
     private static final String[] EASY_WORDS = {
-        "CATS","DOGS","BIRD","FISH","FROG","TREE","BOOK","CAKE","RAIN","SNOW",
-        "STAR","MOON","FIRE","WIND","LION","BEAR","WOLF","DEER","DUCK","FAWN",
-        "LAMP","DOOR","ROAD","SHIP","FARM","BELL","HILL","ROSE","LEAF","SEED"
+        "CODE","LOOP","BYTE","CHAR","TYPE","VOID","BOOL","ENUM","FUNC","HEAP",
+        "TREE","NODE","LINK","PUSH","PULL","FORK","PIPE","PORT","HASH","LOCK",
+        "SORT","SCAN","DUMP","PING","BIND","CAST","FLAG","GOTO","INIT","LOAD"
     };
     private static final String[] MEDIUM_WORDS = {
-        "APPLE","BRAVE","CLOUD","DANCE","EARTH","FLAME","GRACE","HEART","IVORY","JELLY",
-        "KNEEL","LEMON","MAGIC","NIGHT","OCEAN","PLANT","QUEST","RIVER","SOLAR","TIGER",
-        "ULTRA","VIVID","WATER","XENON","YACHT","ZEBRA","BLAZE","CRISP","DROVE","ELITE"
+        "ARRAY","CLASS","DEBUG","ERROR","FETCH","GRAPH","INDEX","MERGE","PARSE","QUERY",
+        "REACT","STACK","TOKEN","CACHE","ASYNC","BLOCK","QUEUE","SCOPE","SHELL","YIELD",
+        "FLOAT","PATCH","REGEX","ROUTE","STATE","THROW","TRUNK","MATCH","PROXY","TRAIT"
     };
     private static final String[] HARD_WORDS = {
-        "BRIDGE","CASTLE","DANGER","EMBARK","FOREST","GENTLE","HEROES","IMPACT",
-        "JUNGLE","KNIGHT","LAUNCH","MIRROR","NARROW","OBJECT","PALACE","QUARTZ",
-        "RADIANT","SHADOW","TUNNEL","UNIQUE","VELVET","WONDER","YELLOW","ZIPPER",
-        "BLANKET","CAPTAIN","DIAMOND","ETERNAL","FREEDOM","GRANITE"
+        "BINARY","BUFFER","CIPHER","DEPLOY","DOCKER","FILTER","GITHUB","IMPORT",
+        "KERNEL","LAMBDA","MODULE","OBJECT","PYTHON","RENDER","SCRIPT","SOCKET",
+        "STREAM","STRING","STRUCT","SWITCH","SYNTAX","THREAD","VECTOR","WIDGET",
+        "CURSOR","ENCODE","MAPPER","PRAGMA","RETURN","SCHEMA"
     };
 
-    // ─── Palette ─────────────────────────────────────────────────────────────
     private static final Color BG_DARK        = new Color(8, 10, 18);
     private static final Color BG_PANEL       = new Color(14, 17, 28);
     private static final Color GOLD           = new Color(212, 175, 95);
@@ -42,23 +45,31 @@ public class LexiGuess extends JFrame {
     private static final Color MEDIUM_CLR     = new Color(190, 155, 40);
     private static final Color HARD_CLR       = new Color(180, 70, 70);
 
-    // ─── State ────────────────────────────────────────────────────────────────
+    
+    private static final String SOUND_CORRECT  = "chrisiex1-correct-156911 (1).wav";
+    private static final String SOUND_LOSE     = "freesound_community-080047_lose_funny_re.wav";
+    private static final String SOUND_KEYCLICK = "creatorshome-keyboard-click-327728.wav";
+    private static final String SOUND_START = "creatorshome-keyboard-click-327728.wav";
+
     private String targetWord = "";
     private String difficulty = "EASY";
     private int maxAttempts = 6;
     private int currentAttempt = 0;
     private int score = 0;
     private int sessionScore = 0;
+    private int currentStage = 1;
     private boolean gameOver = false;
     private boolean gameWon = false;
-    private java.util.List<String> guesses = new ArrayList<>();
-    private java.util.List<int[]> feedbackList = new ArrayList<>();
+    private List<String> guesses = new ArrayList<>();
+    private List<int[]> feedbackList = new ArrayList<>();
     private Set<Character> correctLetters = new HashSet<>();
     private Set<Character> presentLetters = new HashSet<>();
     private Set<Character> absentLetters = new HashSet<>();
     private int wordLength;
 
-    // ─── UI ───────────────────────────────────────────────────────────────────
+    private List<LeaderboardEntry> leaderboard = new ArrayList<>();
+    private String currentPlayerName = "Player";
+
     private CardLayout cardLayout;
     private JPanel cardPanel;
     private JLabel[][] tiles;
@@ -70,11 +81,38 @@ public class LexiGuess extends JFrame {
     private JLabel difficultyLabel;
     private JLabel inGameScoreLabel;
     private JLabel sessionScoreLabel;
+    private JLabel stageLabel;
     private Map<Character, JLabel> keyLabels = new HashMap<>();
     private JPanel keyboardPanel;
+    private JPanel leaderboardListPanel;
+
+    
+    private void playSound(String filePath) {
+        new Thread(() -> {
+            try {
+                File soundFile = new File(filePath);
+                if (!soundFile.exists()) {
+                    System.err.println("Sound file not found: " + filePath);
+                    return;
+                }
+                AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioIn);
+                clip.start();
+                
+                clip.addLineListener(event -> {
+                    if (event.getType() == LineEvent.Type.STOP) {
+                        clip.close();
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
 
     public LexiGuess() {
-        setTitle("LexiGuess — Vocabulary Enhancement Game");
+        setTitle("LexiGuess - Programming Enhancement Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         getContentPane().setBackground(BG_DARK);
@@ -82,42 +120,312 @@ public class LexiGuess extends JFrame {
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
         cardPanel.setBackground(BG_DARK);
+        cardPanel.add(buildStartScreen(),        "START");
         cardPanel.add(buildMenuScreen(),         "MENU");
         cardPanel.add(buildGameScreen(),         "GAME");
         cardPanel.add(buildInstructionsScreen(), "INSTRUCTIONS");
+        cardPanel.add(buildLeaderboardScreen(),  "LEADERBOARD");
 
         add(cardPanel);
         setSize(960, 780);
         setLocationRelativeTo(null);
         setVisible(true);
-        cardLayout.show(cardPanel, "MENU");
+        cardLayout.show(cardPanel, "START");
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    //  MENU SCREEN
-    // ═══════════════════════════════════════════════════════════════════════════
+    static class GradientPanel extends JPanel {
+        private Color top, bottom;
+        GradientPanel(Color top, Color bottom) {
+            this.top = top;
+            this.bottom = bottom;
+            setOpaque(false);
+        }
+        @Override protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setPaint(new GradientPaint(0, 0, top, 0, getHeight(), bottom));
+            g2.fillRect(0, 0, getWidth(), getHeight());
+            super.paintComponent(g);
+        }
+    }
+
+    private JLabel makeOrnamentLabel(String text) {
+        JLabel lbl = new JLabel(text, SwingConstants.CENTER);
+        lbl.setFont(new Font("Serif", Font.PLAIN, 14));
+        lbl.setForeground(GOLD_DIM);
+        lbl.setAlignmentX(CENTER_ALIGNMENT);
+        return lbl;
+    }
+
+    private void showEndGameDialog(String title, String message, String word,
+                                    String subMessage, Color accentColor, String retryLabel) {
+        JDialog dialog = new JDialog(this, title, true);
+        dialog.setUndecorated(true);
+        dialog.setSize(420, 320);
+        dialog.setLocationRelativeTo(this);
+
+        JPanel panel = new JPanel() {
+            @Override protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+               
+                g2.setColor(BG_PANEL);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 24, 24);
+                
+                g2.setStroke(new BasicStroke(2f));
+                g2.setColor(accentColor);
+                g2.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, 24, 24);
+               
+                g2.setPaint(new GradientPaint(getWidth()/2 - 80, 0, new Color(accentColor.getRed(), accentColor.getGreen(), accentColor.getBlue(), 0),
+                    getWidth()/2, 0, accentColor,
+                    true));
+                g2.fillRect(getWidth()/2 - 80, 2, 160, 3);
+            }
+        };
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(35, 40, 30, 40));
+        panel.setOpaque(false);
+
+      
+        JLabel ornament = new JLabel("--- \u2726 ---", SwingConstants.CENTER);
+        ornament.setFont(new Font("Serif", Font.PLAIN, 14));
+        ornament.setForeground(GOLD_DIM);
+        ornament.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(ornament);
+        panel.add(Box.createVerticalStrut(12));
+
+        
+        JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Serif", Font.BOLD | Font.ITALIC, 32));
+        titleLabel.setForeground(accentColor.equals(RED_DANGER) ? RED_DANGER : GOLD);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(titleLabel);
+        panel.add(Box.createVerticalStrut(15));
+
+        
+        JLabel msgLabel = new JLabel(message, SwingConstants.CENTER);
+        msgLabel.setFont(new Font("Serif", Font.PLAIN, 15));
+        msgLabel.setForeground(TEXT_MUTED);
+        msgLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(msgLabel);
+        panel.add(Box.createVerticalStrut(8));
+
+        
+        JLabel wordLabel = new JLabel(word, SwingConstants.CENTER);
+        wordLabel.setFont(new Font("Monospaced", Font.BOLD, 36));
+        wordLabel.setForeground(TEXT_WHITE);
+        wordLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(wordLabel);
+        panel.add(Box.createVerticalStrut(8));
+
+       
+        JLabel subLabel = new JLabel(subMessage, SwingConstants.CENTER);
+        subLabel.setFont(new Font("Serif", Font.ITALIC, 13));
+        subLabel.setForeground(GOLD_DIM);
+        subLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(subLabel);
+        panel.add(Box.createVerticalStrut(25));
+
+       
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        btnPanel.setOpaque(false);
+
+        Color retryBg = accentColor.equals(RED_DANGER) ? new Color(50, 20, 20) : new Color(20, 40, 20);
+        JButton retryBtn = makeFancyButton(retryLabel, retryBg, accentColor);
+        retryBtn.setFont(new Font("Serif", Font.BOLD, 14));
+        retryBtn.addActionListener(e -> { dialog.dispose(); startGame(); });
+
+        JButton exitBtn = makeFancyButton("Exit", new Color(30, 28, 35), GOLD_DIM);
+        exitBtn.setFont(new Font("Serif", Font.BOLD, 14));
+        exitBtn.addActionListener(e -> System.exit(0));
+
+        btnPanel.add(retryBtn);
+        btnPanel.add(exitBtn);
+        btnPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(btnPanel);
+
+        dialog.setContentPane(panel);
+        dialog.getContentPane().setBackground(BG_DARK);
+        dialog.setBackground(new Color(0, 0, 0, 0));
+        dialog.setVisible(true);
+    }
+
+
+        private JButton makeFancyButton(String text, Color bgColor, Color borderColor) {
+            JButton btn = new JButton(text) {
+                @Override protected void paintComponent(Graphics g) {
+                    Graphics2D g2 = (Graphics2D) g;
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setColor(bgColor);
+                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                    super.paintComponent(g);
+                }
+            };
+        btn.setFont(new Font("Serif", Font.BOLD, 13));
+        btn.setForeground(TEXT_WHITE);
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setOpaque(false);
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btn.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(borderColor, 1),
+            BorderFactory.createEmptyBorder(6, 16, 6, 16)
+        ));
+        return btn;
+    }
+
+    private JButton makeLinkButton(String text) {
+        JButton btn = new JButton(text);
+        btn.setFont(new Font("Serif", Font.PLAIN, 13));
+        btn.setForeground(GOLD_DIM);
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btn.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) { btn.setForeground(GOLD); }
+            public void mouseExited(MouseEvent e) { btn.setForeground(GOLD_DIM); }
+        });
+        return btn;
+    }
+
+    private JPanel buildStartScreen() {
+        JPanel root = new GradientPanel(BG_DARK, new Color(12, 15, 28));
+        root.setLayout(new BorderLayout());
+
+        JPanel center = new JPanel();
+        center.setOpaque(false);
+        center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
+        center.setBorder(BorderFactory.createEmptyBorder(100, 80, 100, 80));
+
+        center.add(makeOrnamentLabel("--- * ---"));
+        center.add(Box.createVerticalStrut(20));
+
+        JLabel title = new JLabel("LexiGuess", SwingConstants.CENTER);
+        title.setFont(new Font("Serif", Font.BOLD | Font.ITALIC, 72));
+        title.setForeground(GOLD);
+        title.setAlignmentX(CENTER_ALIGNMENT);
+        center.add(title);
+
+        JLabel sub = new JLabel("--- Programming Enhancement Game ---", SwingConstants.CENTER);
+        sub.setFont(new Font("Serif", Font.ITALIC, 18));
+        sub.setForeground(GOLD_DIM);
+        sub.setAlignmentX(CENTER_ALIGNMENT);
+        center.add(sub);
+
+        center.add(Box.createVerticalStrut(40));
+        center.add(makeOrnamentLabel("*  o  *"));
+        center.add(Box.createVerticalStrut(50));
+
+        JLabel nameLbl = new JLabel("Enter Your Name:", SwingConstants.CENTER);
+        nameLbl.setFont(new Font("Serif", Font.BOLD, 18));
+        nameLbl.setForeground(TEXT_WHITE);
+        nameLbl.setAlignmentX(CENTER_ALIGNMENT);
+        center.add(nameLbl);
+        center.add(Box.createVerticalStrut(10));
+
+        JTextField nameField = new JTextField("Player", 15);
+        nameField.setFont(new Font("Serif", Font.PLAIN, 18));
+        nameField.setForeground(TEXT_WHITE);
+        nameField.setBackground(new Color(22, 26, 42));
+        nameField.setCaretColor(GOLD);
+        nameField.setHorizontalAlignment(SwingConstants.CENTER);
+        nameField.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(GOLD_DIM, 1),
+            BorderFactory.createEmptyBorder(8, 15, 8, 15)
+        ));
+        nameField.setMaximumSize(new Dimension(250, 45));
+        nameField.setAlignmentX(CENTER_ALIGNMENT);
+        center.add(nameField);
+
+        center.add(Box.createVerticalStrut(40));
+
+        JButton startBtn = new JButton("START GAME") {
+            @Override protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                GradientPaint gp = new GradientPaint(0, 0, GOLD, 0, getHeight(), GOLD_DIM);
+                g2.setPaint(gp);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
+                super.paintComponent(g);
+            }
+        };
+        startBtn.setFont(new Font("Serif", Font.BOLD, 24));
+        startBtn.setForeground(BG_DARK);
+        startBtn.setContentAreaFilled(false);
+        startBtn.setBorderPainted(false);
+        startBtn.setFocusPainted(false);
+        startBtn.setOpaque(false);
+        startBtn.setPreferredSize(new Dimension(250, 60));
+        startBtn.setMaximumSize(new Dimension(250, 60));
+        startBtn.setAlignmentX(CENTER_ALIGNMENT);
+        startBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        startBtn.addActionListener(e -> {
+            String name = nameField.getText().trim();
+            if (!name.isEmpty()) currentPlayerName = name;
+            playSound("start.wav");
+            cardLayout.show(cardPanel, "MENU");
+        });
+        startBtn.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) { startBtn.setForeground(TEXT_WHITE); }
+            public void mouseExited(MouseEvent e) { startBtn.setForeground(BG_DARK); }
+        });
+        center.add(startBtn);
+
+        center.add(Box.createVerticalStrut(30));
+
+        JButton leaderBtn = makeFancyButton("View Leaderboard", new Color(25, 22, 12), GOLD_DIM);
+        leaderBtn.setAlignmentX(CENTER_ALIGNMENT);
+        leaderBtn.addActionListener(e -> {
+            updateLeaderboardDisplay();
+            cardLayout.show(cardPanel, "LEADERBOARD");
+        });
+        center.add(leaderBtn);
+
+        center.add(Box.createVerticalStrut(15));
+
+        JButton exitBtn = makeFancyButton("Exit Game", new Color(50, 20, 20), RED_DANGER);
+        exitBtn.setAlignmentX(CENTER_ALIGNMENT);
+        exitBtn.addActionListener(e -> System.exit(0));
+        center.add(exitBtn);
+
+        root.add(center, BorderLayout.CENTER);
+
+        JLabel bottomOrnament = new JLabel("*  o  *", SwingConstants.CENTER);
+        bottomOrnament.setFont(new Font("Serif", Font.PLAIN, 14));
+        bottomOrnament.setForeground(GOLD_DIM);
+        bottomOrnament.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 0));
+        root.add(bottomOrnament, BorderLayout.SOUTH);
+
+        return root;
+    }
+
     private JPanel buildMenuScreen() {
         JPanel root = new GradientPanel(BG_DARK, new Color(12, 15, 28));
         root.setLayout(new BorderLayout());
 
-        // Top nav bar
         JPanel topBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 12));
         topBar.setOpaque(false);
         JButton instrBtn = makeLinkButton("How to Play");
         instrBtn.addActionListener(e -> cardLayout.show(cardPanel, "INSTRUCTIONS"));
+        JButton leaderBtn = makeLinkButton("Leaderboard");
+        leaderBtn.addActionListener(e -> {
+            updateLeaderboardDisplay();
+            cardLayout.show(cardPanel, "LEADERBOARD");
+        });
         JButton exitBtn = makeLinkButton("Exit");
         exitBtn.addActionListener(e -> System.exit(0));
         topBar.add(instrBtn);
+        topBar.add(leaderBtn);
         topBar.add(exitBtn);
         root.add(topBar, BorderLayout.NORTH);
 
-        // Center
         JPanel center = new JPanel();
         center.setOpaque(false);
         center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
         center.setBorder(BorderFactory.createEmptyBorder(10, 80, 20, 80));
 
-        center.add(makeOrnamentLabel("— ✦ —"));
+        center.add(makeOrnamentLabel("--- * ---"));
         center.add(Box.createVerticalStrut(10));
 
         JLabel title = new JLabel("LexiGuess", SwingConstants.CENTER);
@@ -126,14 +434,14 @@ public class LexiGuess extends JFrame {
         title.setAlignmentX(CENTER_ALIGNMENT);
         center.add(title);
 
-        JLabel sub = new JLabel("— Vocabulary Enhancement Game —", SwingConstants.CENTER);
+        JLabel sub = new JLabel("--- Programming Enhancement Game ---", SwingConstants.CENTER);
         sub.setFont(new Font("Serif", Font.ITALIC, 15));
         sub.setForeground(GOLD_DIM);
         sub.setAlignmentX(CENTER_ALIGNMENT);
         center.add(sub);
 
         center.add(Box.createVerticalStrut(8));
-        center.add(makeOrnamentLabel("◆  ◇  ◆"));
+        center.add(makeOrnamentLabel("*  o  *"));
         center.add(Box.createVerticalStrut(28));
 
         JLabel chooseLbl = new JLabel("Choose Your Challenge", SwingConstants.CENTER);
@@ -143,16 +451,15 @@ public class LexiGuess extends JFrame {
         center.add(chooseLbl);
         center.add(Box.createVerticalStrut(20));
 
-        // Difficulty cards
         JPanel diffRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 22, 0));
         diffRow.setOpaque(false);
-        diffRow.add(makeDiffCard("EASY",   "Novice",     "4-letter words", "6 attempts", EASY_CLR,   "✦"));
-        diffRow.add(makeDiffCard("MEDIUM", "Scholar",    "5-letter words", "6 attempts", MEDIUM_CLR, "✦✦"));
-        diffRow.add(makeDiffCard("HARD",   "Mastermind", "6+ letter words","6 attempts", HARD_CLR,   "✦✦✦"));
+        diffRow.add(makeDiffCard("EASY",   "Novice",     "4-letter words", "6 attempts", EASY_CLR,   "*"));
+        diffRow.add(makeDiffCard("MEDIUM", "Scholar",    "5-letter words", "6 attempts", MEDIUM_CLR, "**"));
+        diffRow.add(makeDiffCard("HARD",   "Mastermind", "6+ letter words","6 attempts", HARD_CLR,   "***"));
         center.add(diffRow);
 
         center.add(Box.createVerticalStrut(30));
-        sessionScoreLabel = new JLabel("Session Score: 0", SwingConstants.CENTER);
+        sessionScoreLabel = new JLabel("Session Score: 0  |  Stage: 1", SwingConstants.CENTER);
         sessionScoreLabel.setFont(new Font("Serif", Font.BOLD, 16));
         sessionScoreLabel.setForeground(GOLD);
         sessionScoreLabel.setAlignmentX(CENTER_ALIGNMENT);
@@ -160,7 +467,7 @@ public class LexiGuess extends JFrame {
 
         root.add(center, BorderLayout.CENTER);
 
-        JLabel bottomOrnament = new JLabel("◆  ◇  ◆", SwingConstants.CENTER);
+        JLabel bottomOrnament = new JLabel("*  o  *", SwingConstants.CENTER);
         bottomOrnament.setFont(new Font("Serif", Font.PLAIN, 14));
         bottomOrnament.setForeground(GOLD_DIM);
         bottomOrnament.setBorder(BorderFactory.createEmptyBorder(0, 0, 16, 0));
@@ -230,7 +537,7 @@ public class LexiGuess extends JFrame {
         attLbl.setForeground(TEXT_MUTED);
         attLbl.setAlignmentX(CENTER_ALIGNMENT);
 
-        JButton playBtn = new JButton("Play  →") {
+        JButton playBtn = new JButton("Play  ->") {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D)g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -277,9 +584,6 @@ public class LexiGuess extends JFrame {
         return card;
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    //  INSTRUCTIONS SCREEN
-    // ═══════════════════════════════════════════════════════════════════════════
     private JPanel buildInstructionsScreen() {
         JPanel root = new GradientPanel(BG_DARK, new Color(12, 15, 28));
         root.setLayout(new BorderLayout(0, 0));
@@ -291,35 +595,36 @@ public class LexiGuess extends JFrame {
         title.setBorder(BorderFactory.createEmptyBorder(0,0,18,0));
         root.add(title, BorderLayout.NORTH);
 
-        String html = "<html><body style='font-family:Serif; color:#ebe8e1; background:#0e1118; font-size:14px; padding:18px; line-height:1.7;'>"
-            + "<p style='color:#d4af5f; font-size:16px; font-weight:bold; margin:0 0 4px 0;'>Objective</p>"
-            + "<p style='margin:0 0 14px 0;'>Decipher the hidden word within <b>6 attempts</b> to claim victory.</p>"
-            + "<hr style='border:none; border-top:1px solid #3a3a4a; margin:12px 0;'/>"
-            + "<p style='color:#d4af5f; font-size:16px; font-weight:bold; margin:0 0 8px 0;'>Colour Feedback</p>"
-            + "<table cellpadding='7' style='margin-bottom:14px;'>"
-            + "<tr><td><span style='background:#3C8C5A; color:white; padding:4px 14px; border-radius:4px;'>&nbsp;GREEN&nbsp;</span></td>"
-            + "<td>Correct letter in the correct position</td></tr>"
-            + "<tr><td><span style='background:#BE9B28; color:white; padding:4px 14px; border-radius:4px;'>&nbsp;AMBER&nbsp;</span></td>"
-            + "<td>Letter exists in the word but wrong position</td></tr>"
-            + "<tr><td><span style='background:#3A3A4A; color:#aaa; padding:4px 14px; border-radius:4px;'>&nbsp;GREY&nbsp;&nbsp;</span></td>"
-            + "<td>Letter is not in the word at all</td></tr>"
+        String html = ""
+            + "<html><body style='background:#0e1118;color:#b8b9c8;font-family:SansSerif;padding:18px;'>"
+            + "<h2 style='color:#d4af5f;'>Objective</h2>"
+            + "<p>Decipher the hidden programming word within 6 attempts to claim victory and advance to the next stage.</p>"
+            + "<br>"
+            + "<h2 style='color:#d4af5f;'>Stages System</h2>"
+            + "<p>Each correct guess advances you to the next stage. Failing a word resets your score to 0 but keeps your stage progress.</p>"
+            + "<br>"
+            + "<h2 style='color:#d4af5f;'>Colour Feedback</h2>"
+            + "<table border='0' cellpadding='6'>"
+            + "<tr><td style='color:#3c8c5a;font-weight:bold;'>GREEN</td><td>Correct letter in the correct position</td></tr>"
+            + "<tr><td style='color:#be9b28;font-weight:bold;'>AMBER</td><td>Letter exists in the word but wrong position</td></tr>"
+            + "<tr><td style='color:#787682;font-weight:bold;'>GREY</td><td>Letter is not in the word at all</td></tr>"
             + "</table>"
-            + "<hr style='border:none; border-top:1px solid #3a3a4a; margin:12px 0;'/>"
-            + "<p style='color:#d4af5f; font-size:16px; font-weight:bold; margin:0 0 8px 0;'>Difficulty Levels</p>"
-            + "<table cellpadding='5' style='margin-bottom:14px;'>"
-            + "<tr><td style='color:#46aa64; font-weight:bold; width:110px;'>Easy</td><td>4-letter words</td></tr>"
-            + "<tr><td style='color:#be9b28; font-weight:bold;'>Medium</td><td>5-letter words</td></tr>"
-            + "<tr><td style='color:#b44646; font-weight:bold;'>Hard</td><td>6 or more letter words</td></tr>"
+            + "<br>"
+            + "<h2 style='color:#d4af5f;'>Difficulty Levels</h2>"
+            + "<table border='0' cellpadding='6'>"
+            + "<tr><td style='color:#46aa64;font-weight:bold;'>Easy</td><td>4-letter programming words</td></tr>"
+            + "<tr><td style='color:#be9b28;font-weight:bold;'>Medium</td><td>5-letter programming words</td></tr>"
+            + "<tr><td style='color:#b44646;font-weight:bold;'>Hard</td><td>6 or more letter programming words</td></tr>"
             + "</table>"
-            + "<hr style='border:none; border-top:1px solid #3a3a4a; margin:12px 0;'/>"
-            + "<p style='color:#d4af5f; font-size:16px; font-weight:bold; margin:0 0 4px 0;'>The Gallows</p>"
-            + "<p style='margin:0 0 14px 0;'>Each wrong guess draws a body part. After <b>6 wrong guesses</b>, the figure is complete and the game ends in defeat.</p>"
-            + "<hr style='border:none; border-top:1px solid #3a3a4a; margin:12px 0;'/>"
-            + "<p style='color:#d4af5f; font-size:16px; font-weight:bold; margin:0 0 8px 0;'>Scoring</p>"
-            + "<table cellpadding='5'>"
-            + "<tr><td style='color:#46aa64; width:110px;'>Easy</td><td>100 pts base + 10 × remaining attempts</td></tr>"
-            + "<tr><td style='color:#be9b28;'>Medium</td><td>200 pts base + 20 × remaining attempts</td></tr>"
-            + "<tr><td style='color:#b44646;'>Hard</td><td>300 pts base + 30 × remaining attempts</td></tr>"
+            + "<br>"
+            + "<h2 style='color:#d4af5f;'>The Stickman</h2>"
+            + "<p>The stickman starts fully assembled. Each wrong guess removes a body part. After 6 wrong guesses, all parts are gone and the game ends in defeat!</p>"
+            + "<br>"
+            + "<h2 style='color:#d4af5f;'>Scoring</h2>"
+            + "<table border='0' cellpadding='6'>"
+            + "<tr><td style='color:#46aa64;font-weight:bold;'>Easy</td><td>100 pts base + 10 x remaining attempts</td></tr>"
+            + "<tr><td style='color:#be9b28;font-weight:bold;'>Medium</td><td>200 pts base + 20 x remaining attempts</td></tr>"
+            + "<tr><td style='color:#b44646;font-weight:bold;'>Hard</td><td>300 pts base + 30 x remaining attempts</td></tr>"
             + "</table>"
             + "</body></html>";
 
@@ -331,7 +636,7 @@ public class LexiGuess extends JFrame {
         scroll.getViewport().setBackground(new Color(14, 17, 24));
         root.add(scroll, BorderLayout.CENTER);
 
-        JButton back = makeFancyButton("← Return to Hall", new Color(25,20,10), GOLD_DIM);
+        JButton back = makeFancyButton("<- Return to Hall", new Color(25,20,10), GOLD_DIM);
         back.addActionListener(e -> cardLayout.show(cardPanel, "MENU"));
         JPanel bot = new JPanel(new FlowLayout(FlowLayout.CENTER));
         bot.setOpaque(false);
@@ -342,14 +647,119 @@ public class LexiGuess extends JFrame {
         return root;
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    //  GAME SCREEN
-    // ═══════════════════════════════════════════════════════════════════════════
+    private JPanel buildLeaderboardScreen() {
+        JPanel root = new GradientPanel(BG_DARK, new Color(12, 15, 28));
+        root.setLayout(new BorderLayout(0, 0));
+        root.setBorder(BorderFactory.createEmptyBorder(30, 70, 30, 70));
+
+        JLabel title = new JLabel("* Leaderboard *", SwingConstants.CENTER);
+        title.setFont(new Font("Serif", Font.BOLD | Font.ITALIC, 36));
+        title.setForeground(GOLD);
+        title.setBorder(BorderFactory.createEmptyBorder(0, 0, 18, 0));
+        root.add(title, BorderLayout.NORTH);
+
+        leaderboardListPanel = new JPanel();
+        leaderboardListPanel.setLayout(new BoxLayout(leaderboardListPanel, BoxLayout.Y_AXIS));
+        leaderboardListPanel.setOpaque(false);
+        leaderboardListPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+
+        JScrollPane scroll = new JScrollPane(leaderboardListPanel);
+        scroll.setBorder(BorderFactory.createLineBorder(GOLD_DIM, 1));
+        scroll.getViewport().setBackground(new Color(14, 17, 24));
+        scroll.setOpaque(false);
+        root.add(scroll, BorderLayout.CENTER);
+
+        JPanel bot = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        bot.setOpaque(false);
+        bot.setBorder(BorderFactory.createEmptyBorder(16, 0, 0, 0));
+
+        JButton backBtn = makeFancyButton("<- Return", new Color(25, 20, 10), GOLD_DIM);
+        backBtn.addActionListener(e -> cardLayout.show(cardPanel, "MENU"));
+
+        JButton clearBtn = makeFancyButton("Clear Leaderboard", new Color(50, 20, 20), RED_DANGER);
+        clearBtn.addActionListener(e -> {
+            leaderboard.clear();
+            updateLeaderboardDisplay();
+        });
+
+        bot.add(backBtn);
+        bot.add(clearBtn);
+        root.add(bot, BorderLayout.SOUTH);
+
+        return root;
+    }
+
+    private void updateLeaderboardDisplay() {
+        leaderboardListPanel.removeAll();
+        leaderboard.sort((a, b) -> Integer.compare(b.score, a.score));
+
+        if (leaderboard.isEmpty()) {
+            JLabel emptyLbl = new JLabel("No entries yet. Play to get on the board!", SwingConstants.CENTER);
+            emptyLbl.setFont(new Font("Serif", Font.ITALIC, 16));
+            emptyLbl.setForeground(TEXT_MUTED);
+            emptyLbl.setAlignmentX(CENTER_ALIGNMENT);
+            leaderboardListPanel.add(Box.createVerticalStrut(50));
+            leaderboardListPanel.add(emptyLbl);
+        } else {
+            JPanel header = new JPanel(new GridLayout(1, 4, 10, 0));
+            header.setOpaque(false);
+            header.setMaximumSize(new Dimension(600, 35));
+            header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, GOLD_DIM));
+
+            String[] headers = {"Rank", "Player", "Score", "Stage"};
+            for (String h : headers) {
+                JLabel lbl = new JLabel(h, SwingConstants.CENTER);
+                lbl.setFont(new Font("Serif", Font.BOLD, 14));
+                lbl.setForeground(GOLD);
+                header.add(lbl);
+            }
+            leaderboardListPanel.add(header);
+            leaderboardListPanel.add(Box.createVerticalStrut(5));
+
+            int rank = 1;
+            for (LeaderboardEntry entry : leaderboard) {
+                if (rank > 10) break;
+                JPanel row = new JPanel(new GridLayout(1, 4, 10, 0));
+                row.setOpaque(false);
+                row.setMaximumSize(new Dimension(600, 35));
+                row.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(50, 50, 60)));
+
+                Color rowColor = rank == 1 ? GOLD : rank == 2 ? SILVER : rank == 3 ? new Color(205, 127, 50) : TEXT_WHITE;
+
+                JLabel rankLbl = new JLabel("#" + rank, SwingConstants.CENTER);
+                rankLbl.setFont(new Font("Serif", Font.BOLD, 14));
+                rankLbl.setForeground(rowColor);
+
+                JLabel nameLbl = new JLabel(entry.name, SwingConstants.CENTER);
+                nameLbl.setFont(new Font("Serif", Font.PLAIN, 14));
+                nameLbl.setForeground(rowColor);
+
+                JLabel scoreLbl = new JLabel(String.valueOf(entry.score), SwingConstants.CENTER);
+                scoreLbl.setFont(new Font("Serif", Font.BOLD, 14));
+                scoreLbl.setForeground(rowColor);
+
+                JLabel stageLbl = new JLabel(String.valueOf(entry.stage), SwingConstants.CENTER);
+                stageLbl.setFont(new Font("Serif", Font.PLAIN, 14));
+                stageLbl.setForeground(rowColor);
+
+                row.add(rankLbl);
+                row.add(nameLbl);
+                row.add(scoreLbl);
+                row.add(stageLbl);
+
+                leaderboardListPanel.add(row);
+                leaderboardListPanel.add(Box.createVerticalStrut(3));
+                rank++;
+            }
+        }
+        leaderboardListPanel.revalidate();
+        leaderboardListPanel.repaint();
+    }
+
     private JPanel buildGameScreen() {
         JPanel root = new GradientPanel(BG_DARK, new Color(10, 13, 22));
         root.setLayout(new BorderLayout(0, 0));
 
-        // ── Top bar ──
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setOpaque(false);
         topBar.setBorder(BorderFactory.createCompoundBorder(
@@ -357,10 +767,9 @@ public class LexiGuess extends JFrame {
             BorderFactory.createEmptyBorder(10,18,10,18)
         ));
 
-        JButton backBtn = makeFancyButton("← Back", new Color(25,22,12), GOLD_DIM);
+        JButton backBtn = makeFancyButton("<- Back", new Color(25,22,12), GOLD_DIM);
         backBtn.addActionListener(e -> {
-            sessionScore += score; score = 0;
-            sessionScoreLabel.setText("Session Score: " + sessionScore);
+            sessionScoreLabel.setText("Session Score: " + sessionScore + "  |  Stage: " + currentStage);
             cardLayout.show(cardPanel, "MENU");
         });
         topBar.add(backBtn, BorderLayout.WEST);
@@ -380,14 +789,23 @@ public class LexiGuess extends JFrame {
         titleGroup.add(difficultyLabel);
         topBar.add(titleGroup, BorderLayout.CENTER);
 
+        JPanel scorePanel = new JPanel();
+        scorePanel.setOpaque(false);
+        scorePanel.setLayout(new BoxLayout(scorePanel, BoxLayout.Y_AXIS));
         inGameScoreLabel = new JLabel("Score: 0", SwingConstants.RIGHT);
         inGameScoreLabel.setFont(new Font("Serif", Font.BOLD, 15));
         inGameScoreLabel.setForeground(GOLD);
-        topBar.add(inGameScoreLabel, BorderLayout.EAST);
+        inGameScoreLabel.setAlignmentX(RIGHT_ALIGNMENT);
+        stageLabel = new JLabel("Stage: 1", SwingConstants.RIGHT);
+        stageLabel.setFont(new Font("Serif", Font.ITALIC, 12));
+        stageLabel.setForeground(GOLD_DIM);
+        stageLabel.setAlignmentX(RIGHT_ALIGNMENT);
+        scorePanel.add(inGameScoreLabel);
+        scorePanel.add(stageLabel);
+        topBar.add(scorePanel, BorderLayout.EAST);
 
         root.add(topBar, BorderLayout.NORTH);
 
-        // ── Center ──
         JPanel center = new JPanel(new GridBagLayout());
         center.setOpaque(false);
         center.setBorder(BorderFactory.createEmptyBorder(14,20,10,20));
@@ -407,7 +825,6 @@ public class LexiGuess extends JFrame {
 
         root.add(center, BorderLayout.CENTER);
 
-        // ── Bottom ──
         JPanel bottom = new JPanel();
         bottom.setOpaque(false);
         bottom.setLayout(new BoxLayout(bottom, BoxLayout.Y_AXIS));
@@ -423,7 +840,6 @@ public class LexiGuess extends JFrame {
         bottom.add(messageLabel);
         bottom.add(Box.createVerticalStrut(8));
 
-        // Input row
         JPanel inputRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
         inputRow.setOpaque(false);
 
@@ -452,14 +868,17 @@ public class LexiGuess extends JFrame {
                 char c = e.getKeyChar();
                 if (!Character.isLetter(c)) { e.consume(); return; }
                 if (inputField.getText().length() >= wordLength) e.consume();
-                else e.setKeyChar(Character.toUpperCase(c));
+                else {
+                    e.setKeyChar(Character.toUpperCase(c));
+                    playSound("click.wav"); 
+                }
             }
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) submitGuess();
             }
         });
 
-        submitBtn = makeFancyButton("Guess  →", new Color(20,40,20), EASY_CLR);
+        submitBtn = makeFancyButton("Guess  ->", new Color(20,40,20), EASY_CLR);
         submitBtn.addActionListener(e -> submitGuess());
         submitBtn.setPreferredSize(new Dimension(120, 44));
 
@@ -482,7 +901,6 @@ public class LexiGuess extends JFrame {
         return root;
     }
 
-    // ─── Keyboard ────────────────────────────────────────────────────────────
     private void buildKeyboard() {
         keyboardPanel.removeAll();
         keyboardPanel.setLayout(new BoxLayout(keyboardPanel, BoxLayout.Y_AXIS));
@@ -524,9 +942,6 @@ public class LexiGuess extends JFrame {
         keyboardPanel.repaint();
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    //  GAME LOGIC
-    // ═══════════════════════════════════════════════════════════════════════════
     private void startGame() {
         String[] bank = difficulty.equals("EASY") ? EASY_WORDS : difficulty.equals("MEDIUM") ? MEDIUM_WORDS : HARD_WORDS;
         targetWord = bank[new Random().nextInt(bank.length)];
@@ -537,14 +952,16 @@ public class LexiGuess extends JFrame {
 
         buildGrid();
         buildKeyboard();
+        hangmanPanel.resetAnimation();
         hangmanPanel.repaint();
 
         Color dc = difficulty.equals("EASY") ? EASY_CLR : difficulty.equals("MEDIUM") ? MEDIUM_CLR : HARD_CLR;
         difficultyLabel.setForeground(dc);
-        difficultyLabel.setText(difficulty + "  ·  " + wordLength + "-letter word");
-        messageLabel.setText("Decipher the hidden " + wordLength + "-letter word…");
+        difficultyLabel.setText(difficulty + "  |  " + wordLength + "-letter word");
+        messageLabel.setText("Decipher the hidden " + wordLength + "-letter programming word...");
         messageLabel.setForeground(TEXT_MUTED);
         inGameScoreLabel.setText("Score: " + sessionScore);
+        stageLabel.setText("Stage: " + currentStage);
         inputField.setText("");
         inputField.setEnabled(true);
         submitBtn.setEnabled(true);
@@ -590,7 +1007,7 @@ public class LexiGuess extends JFrame {
         if (gameOver || gameWon) return;
         String guess = inputField.getText().trim().toUpperCase();
         if (guess.length() != wordLength) {
-            messageLabel.setText("✦  Word must be exactly " + wordLength + " letters  ✦");
+            messageLabel.setText("Word must be exactly " + wordLength + " letters!");
             messageLabel.setForeground(MEDIUM_CLR);
             return;
         }
@@ -609,35 +1026,90 @@ public class LexiGuess extends JFrame {
 
         currentAttempt++;
         updateKeyboard();
-        hangmanPanel.repaint();
 
-        boolean won = true;
-        for (int f : fb) if (f != 2) { won = false; break; }
+        boolean allCorrect = true;
+        for (int f : fb) if (f != 2) { allCorrect = false; break; }
 
-        if (won) {
+        if (!allCorrect) {
+            hangmanPanel.triggerDropAnimation(countWrongGuesses());
+        } else {
+            hangmanPanel.repaint();
+        }
+
+        if (allCorrect) {
             gameWon = true;
+            playSound("correct.wav"); 
             int remaining = maxAttempts - currentAttempt;
             int base = difficulty.equals("EASY") ? 100 : difficulty.equals("MEDIUM") ? 200 : 300;
             int bonus = difficulty.equals("EASY") ? 10 : difficulty.equals("MEDIUM") ? 20 : 30;
-            score = base + remaining * bonus;
-            sessionScore += score;
-            messageLabel.setText("✦  Magnificent! The word was " + targetWord + "  ·  +" + score + " pts  ✦");
+            int roundScore = base + remaining * bonus;
+            sessionScore += roundScore;
+            currentStage++;
+            messageLabel.setText("Magnificent! The word was " + targetWord + "  |  +" + roundScore + " pts");
             messageLabel.setForeground(GOLD);
             inGameScoreLabel.setText("Score: " + sessionScore);
-            sessionScoreLabel.setText("Session Score: " + sessionScore);
+            stageLabel.setText("Stage: " + currentStage);
+            sessionScoreLabel.setText("Session Score: " + sessionScore + "  |  Stage: " + currentStage);
             inputField.setEnabled(false); submitBtn.setEnabled(false);
+            addToLeaderboard(currentPlayerName, sessionScore, currentStage);
+            
+            SwingUtilities.invokeLater(() -> {
+                showEndGameDialog(
+                    "\u2726 You Win! \u2726",
+                    "Congratulations! You guessed the word:",
+                    targetWord,
+                    "+" + roundScore + " pts  |  Total: " + sessionScore,
+                    GREEN_CORRECT, "Play Again"
+                );
+            });
         } else if (currentAttempt >= maxAttempts) {
             gameOver = true;
-            messageLabel.setText("✦  The word was:  " + targetWord + "  — Better fortune next time  ✦");
+            playSound("lose.wav");
+            messageLabel.setText("The word was: " + targetWord + " -- Score reset!");
             messageLabel.setForeground(RED_DANGER);
+            if (sessionScore > 0) addToLeaderboard(currentPlayerName, sessionScore, currentStage);
+            sessionScore = 0;
+            inGameScoreLabel.setText("Score: 0");
+            sessionScoreLabel.setText("Session Score: 0  |  Stage: " + currentStage);
             inputField.setEnabled(false); submitBtn.setEnabled(false);
+           
+            SwingUtilities.invokeLater(() -> {
+                showEndGameDialog(
+                    "Game Over",
+                    "The word was:",
+                    targetWord,
+                    "Your score has been reset.",
+                    RED_DANGER, "Retry"
+                );
+            });
         } else {
             int left = maxAttempts - currentAttempt;
-            messageLabel.setText("Attempt " + currentAttempt + " of " + maxAttempts + "  ·  " + left + " remaining");
+            messageLabel.setText("Attempt " + currentAttempt + " of " + maxAttempts + "  |  " + left + " remaining");
             messageLabel.setForeground(TEXT_MUTED);
         }
         inputField.setText("");
         gridPanel.repaint();
+    }
+
+    private int countWrongGuesses() {
+        int wrongs = 0;
+        for (int[] fb : feedbackList) {
+            boolean allC = true;
+            for (int f : fb) if (f != 2) { allC = false; break; }
+            if (!allC) wrongs++;
+        }
+        return wrongs;
+    }
+
+    private void addToLeaderboard(String name, int score, int stage) {
+        boolean found = false;
+        for (LeaderboardEntry entry : leaderboard) {
+            if (entry.name.equals(name)) {
+                if (score > entry.score) { entry.score = score; entry.stage = stage; }
+                found = true; break;
+            }
+        }
+        if (!found) leaderboard.add(new LeaderboardEntry(name, score, stage));
     }
 
     private int[] computeFeedback(String guess, String target) {
@@ -651,10 +1123,24 @@ public class LexiGuess extends JFrame {
         return result;
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    //  HANGMAN PANEL
-    // ═══════════════════════════════════════════════════════════════════════════
+    static class LeaderboardEntry {
+        String name; int score; int stage;
+        LeaderboardEntry(String name, int score, int stage) {
+            this.name = name; this.score = score; this.stage = stage;
+        }
+    }
+
+    
     class HangmanPanel extends JPanel {
+        private int wrongGuesses = 0;
+        private int animatingPart = 0;
+        private float dropProgress = 1.0f;
+        private Timer dropTimer;
+       
+        private int[] partDropOffsets = new int[7];
+       
+        private boolean[] partGone = new boolean[7];
+
         HangmanPanel() {
             setOpaque(false);
             setBorder(BorderFactory.createCompoundBorder(
@@ -662,139 +1148,114 @@ public class LexiGuess extends JFrame {
                 BorderFactory.createEmptyBorder(10,10,10,10)
             ));
         }
-        @Override protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            Graphics2D g2 = (Graphics2D)g;
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            g2.setColor(new Color(14,17,28));
-            g2.fillRoundRect(0,0,getWidth(),getHeight(),10,10);
-
-            int wrongs = 0;
-            for (int[] fb : feedbackList) {
-                boolean allC = true; for (int f:fb) if(f!=2){allC=false;break;} if(!allC) wrongs++;
+        void resetAnimation() {
+            wrongGuesses = 0;
+            animatingPart = 0;
+            dropProgress = 1.0f;
+            for (int i = 0; i < partDropOffsets.length; i++) {
+                partDropOffsets[i] = 0;
+                partGone[i] = false;
             }
+            if (dropTimer != null) dropTimer.stop();
+        }
+
+        void triggerDropAnimation(int partNumber) {
+            if (partNumber < 1 || partNumber > 6) return;
+            wrongGuesses = partNumber;
+            animatingPart = partNumber;
+            dropProgress = 0.0f;
+            partDropOffsets[partNumber] = 0;
+
+            if (dropTimer != null && dropTimer.isRunning()) dropTimer.stop();
+
+            dropTimer = new Timer(16, new ActionListener() {
+                float velocity = 2;
+                float gravity = 1.2f;
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    velocity += gravity;
+                    partDropOffsets[animatingPart] += (int) velocity;
+
+                    
+                    if (partDropOffsets[animatingPart] >= 300) {
+                        partGone[animatingPart] = true;
+                        dropProgress = 1.0f;
+                        ((Timer) e.getSource()).stop();
+                    }
+                    repaint();
+                }
+            });
+            dropTimer.start();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
             int w = getWidth(), h = getHeight();
 
-            // Scaffold (gold toned)
+            
             g2.setColor(GOLD_DIM);
-            g2.setStroke(new BasicStroke(2.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            g2.drawLine(w/6, h-22, 5*w/6, h-22);
-            g2.drawLine(w/3, h-22, w/3, 18);
-            g2.drawLine(w/3, 18, 2*w/3+2, 18);
-            g2.setColor(new Color(160,130,60));
+            g2.setStroke(new BasicStroke(3f));
+            g2.drawLine(30, h - 30, w - 30, h - 30); 
+            g2.drawLine(60, h - 30, 60, 40);          
+            g2.drawLine(60, 40, w / 2 + 20, 40);     
+            g2.drawLine(w / 2 + 20, 40, w / 2 + 20, 70); 
+
+            int cx = w / 2 + 20;
+            g2.setColor(TEXT_WHITE);
             g2.setStroke(new BasicStroke(2f));
-            g2.drawLine(2*w/3, 18, 2*w/3, h/5+2);
 
-            int cx = 2*w/3, headTop = h/5, headR = w/9;
-            Color bodyColor = wrongs>=6 ? new Color(200,70,70,230) : new Color(200,200,215,210);
-            g2.setStroke(new BasicStroke(2.8f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            g2.setColor(bodyColor);
+           
+            g2.setClip(0, 0, w, h);
 
-            if (wrongs>=1) {
-                g2.drawOval(cx-headR, headTop, headR*2, headR*2);
-                if (wrongs>=6 && gameOver) {
-                    g2.setStroke(new BasicStroke(2f));
-                    g2.fillOval(cx-headR/2-2, headTop+headR-5, 4, 4);
-                    g2.fillOval(cx+headR/2-2, headTop+headR-5, 4, 4);
-                    g2.drawArc(cx-headR/3, headTop+headR+4, headR*2/3, headR/3, 0, -180);
-                    g2.setStroke(new BasicStroke(2.8f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-                }
+           
+            if (!partGone[6]) {
+                int o = partDropOffsets[6];
+                g2.drawOval(cx - 15, 70 + o, 30, 30);
+               
+                g2.fillOval(cx - 7, 80 + o, 4, 4);   
+                g2.fillOval(cx + 3, 80 + o, 4, 4);   
+                g2.drawArc(cx - 7, 85 + o, 14, 8, 0, -180); 
             }
-            if (wrongs>=2) g2.drawLine(cx, headTop+headR*2, cx, headTop+headR*2+h/4);
-            if (wrongs>=3) g2.drawLine(cx, headTop+headR*2+h/10, cx-w/6, headTop+headR*2+h/5+h/10);
-            if (wrongs>=4) g2.drawLine(cx, headTop+headR*2+h/10, cx+w/6, headTop+headR*2+h/5+h/10);
-            if (wrongs>=5) g2.drawLine(cx, headTop+headR*2+h/4, cx-w/6, headTop+headR*2+h/4+h/5);
-            if (wrongs>=6) g2.drawLine(cx, headTop+headR*2+h/4, cx+w/6, headTop+headR*2+h/4+h/5);
 
-            // Attempts counter
-            g2.setFont(new Font("Serif", Font.ITALIC, 11));
-            g2.setColor(wrongs >= 4 ? RED_DANGER : GOLD_DIM);
-            String attTxt = wrongs + " / " + maxAttempts + " wrong";
-            g2.drawString(attTxt, w/2 - g2.getFontMetrics().stringWidth(attTxt)/2, h-5);
+          
+            if (!partGone[5]) {
+                int o = partDropOffsets[5];
+                g2.drawLine(cx, 100 + o, cx, 155 + o);
+            }
 
-            // Panel title
-            g2.setFont(new Font("Serif", Font.ITALIC | Font.BOLD, 12));
-            g2.setColor(GOLD_DIM);
-            String t = "The Gallows";
-            g2.drawString(t, w/2 - g2.getFontMetrics().stringWidth(t)/2, 14);
+          
+            if (!partGone[4]) {
+                int o = partDropOffsets[4];
+                g2.drawLine(cx, 115 + o, cx - 25, 140 + o);
+            }
+
+          
+            if (!partGone[3]) {
+                int o = partDropOffsets[3];
+                g2.drawLine(cx, 115 + o, cx + 25, 140 + o);
+            }
+
+            
+            if (!partGone[2]) {
+                int o = partDropOffsets[2];
+                g2.drawLine(cx, 155 + o, cx - 20, 190 + o);
+            }
+
+          
+            if (!partGone[1]) {
+                int o = partDropOffsets[1];
+                g2.drawLine(cx, 155 + o, cx + 20, 190 + o);
+            }
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    //  HELPERS
-    // ═══════════════════════════════════════════════════════════════════════════
-    private JButton makeFancyButton(String text, Color bg, Color fg) {
-        JButton btn = new JButton(text) {
-            @Override protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D)g;
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getBackground());
-                g2.fillRoundRect(0,0,getWidth(),getHeight(),8,8);
-                super.paintComponent(g);
-            }
-        };
-        btn.setFont(new Font("Serif", Font.BOLD, 14));
-        btn.setForeground(fg);
-        btn.setBackground(bg);
-        btn.setContentAreaFilled(false);
-        btn.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(fg, 1),
-            BorderFactory.createEmptyBorder(7,14,7,14)
-        ));
-        btn.setFocusPainted(false);
-        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btn.addMouseListener(new MouseAdapter() {
-            Color origBg = bg;
-            public void mouseEntered(MouseEvent e) { btn.setBackground(origBg.brighter()); }
-            public void mouseExited(MouseEvent e)  { btn.setBackground(origBg); }
-        });
-        return btn;
-    }
-
-    private JButton makeLinkButton(String text) {
-        JButton btn = new JButton(text);
-        btn.setFont(new Font("Serif", Font.ITALIC, 13));
-        btn.setForeground(GOLD_DIM);
-        btn.setContentAreaFilled(false);
-        btn.setBorderPainted(false);
-        btn.setFocusPainted(false);
-        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btn.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) { btn.setForeground(GOLD); }
-            public void mouseExited(MouseEvent e)  { btn.setForeground(GOLD_DIM); }
-        });
-        return btn;
-    }
-
-    private JLabel makeOrnamentLabel(String text) {
-        JLabel lbl = new JLabel(text, SwingConstants.CENTER);
-        lbl.setFont(new Font("Serif", Font.PLAIN, 16));
-        lbl.setForeground(GOLD_DIM);
-        lbl.setAlignmentX(CENTER_ALIGNMENT);
-        return lbl;
-    }
-
-    // ─── Gradient background ──────────────────────────────────────────────────
-    static class GradientPanel extends JPanel {
-        private final Color c1, c2;
-        GradientPanel(Color c1, Color c2) { this.c1=c1; this.c2=c2; setOpaque(false); }
-        @Override protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D)g;
-            g2.setPaint(new GradientPaint(0,0,c1, 0,getHeight(),c2));
-            g2.fillRect(0,0,getWidth(),getHeight());
-            super.paintComponent(g);
-        }
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════════
-    //  MAIN
-    // ═══════════════════════════════════════════════════════════════════════════
     public static void main(String[] args) {
-        try { UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName()); }
-        catch (Exception ignored) {}
         SwingUtilities.invokeLater(LexiGuess::new);
     }
-    
 }
