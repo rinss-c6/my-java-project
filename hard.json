@@ -1,0 +1,87 @@
+[
+    {
+        "words": "FUNCTION",
+        "clue": "A reusable block of code that performs a specific task.",
+        "difficulty": "HARD"
+    },
+    {
+        "words": "CLASS",
+        "clue": "A blueprint for creating objects in object-oriented programming.",
+        "difficulty": "HARD"
+    },
+    {
+    "words": "CONCURRENCY",
+    "clue": "Managing multiple tasks executed during overlapping time periods.",
+    "difficulty": "HARD"
+  },
+  {
+    "words": "VIRTUALIZATION",
+    "clue": "Creating virtual versions of hardware or systems to run multiple environments.",
+    "difficulty": "HARD"
+  },
+  {
+    "words": "SCALABILITY",
+    "clue": "The ability of a system to handle increased workload or users.",
+    "difficulty": "HARD"
+  },
+  {
+    "words": "EXTENSIBILITY",
+    "clue": "The ability to add new features without affecting existing functionality.",
+    "difficulty": "HARD"
+  },
+  {
+    "words": "REDUNDANCY",
+    "clue": "Having backup components to ensure system reliability.",
+    "difficulty": "HARD"
+  },
+  {
+    "words": "ARCHITECTURE",
+    "clue": "The overall structure and design of a system.",
+    "difficulty": "HARD"
+  },
+  {
+    "words": "AGGREGATION",
+    "clue": "A relationship where one object contains another but both can exist independently.",
+    "difficulty": "HARD"
+  },
+  {
+    "words": "ASYNCHRONOUS",
+    "clue": "Executing tasks without waiting for previous tasks to finish.",
+    "difficulty": "HARD"
+  },
+  {
+    "words": "BENCHMARKING",
+    "clue": "Measuring system performance using tests or standards.",
+    "difficulty": "HARD"
+  },
+  {
+    "words": "CYBERSECURITY",
+    "clue": "Protecting systems, networks, and data from attacks.",
+    "difficulty": "HARD"
+  },
+  {
+    "words": "DISTRIBUTION",
+    "clue": "Spreading system components across multiple machines.",
+    "difficulty": "HARD"
+  },
+  {
+    "words": "PROVISIONING",
+    "clue": "Preparing and supplying system resources like servers or storage.",
+    "difficulty": "HARD"
+  },
+  {
+    "words": "SCHEDULING",
+    "clue": "Planning and managing task execution.",
+    "difficulty": "HARD"
+  },
+  {
+    "words": "SEGMENTATION",
+    "clue": "Dividing data or systems into smaller sections.",
+    "difficulty": "HARD"
+  },
+  {
+    "words": "SIMULATION",
+    "clue": "Creating a model to imitate real-world processes.",
+    "difficulty": "HARD"
+  }
+]

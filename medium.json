@@ -1,0 +1,513 @@
+[
+    {
+        "words": "ALGORITHM",
+        "clue": "A step-by-step procedure for solving a problem.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "OBJECT",
+        "clue": "A data structure that contains key-value pairs.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "SYNTAX",
+        "clue": "The set of rules that defines the structure of a programming language.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "STACK",
+        "clue": "A data structure that follows Last In, First Out (LIFO) principle.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "QUEUE",
+        "clue": "A data structure that follows First In, First Out (FIFO) principle.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "ENCAPSUL",
+        "clue": "A concept that hides internal data and restricts direct access.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "ABSTRACTION",
+        "clue": "A concept that shows only essential features and hides implementation details.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "INHERITANCE",
+        "clue": "A feature where a class acquires properties from another class.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "CONSTRUCTOR",
+        "clue": "A special method used to initialize objects when created.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "OVERLOAD",
+        "clue": "A feature where methods share the same name but different parameters.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "OVERRIDE",
+        "clue": "A feature where a subclass changes the behavior of a parent method.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "INTERFACE",
+        "clue": "A structure that defines methods without implementation.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "ARRAYLIST",
+        "clue": "A dynamic structure used to store multiple elements.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "LINKEDLIST",
+        "clue": "A structure where elements are connected using nodes.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "STACKTRACE",
+        "clue": "A report showing function call history during execution.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "QUEUEING",
+        "clue": "A process that follows first-in-first-out order.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "TRAVERSAL",
+        "clue": "The process of visiting each element in a structure.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "BINARYSEARCH",
+        "clue": "A fast search method that divides data into halves.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "BUBBLESORT",
+        "clue": "A sorting method that swaps adjacent elements repeatedly.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "SELECTIONSORT",
+        "clue": "A sorting method that selects the smallest element repeatedly.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "INSERTIONSORT",
+        "clue": "A sorting method that builds a sorted list step by step.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "DATASTRUCT",
+        "clue": "A way of organizing and storing data efficiently.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "HASHING",
+        "clue": "A technique used to map data to fixed values.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "COLLISION",
+        "clue": "A situation where two inputs produce the same hash value.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "INDEXING",
+        "clue": "A method used to quickly access stored data.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "POINTER",
+        "clue": "A variable that stores memory address of another variable.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "REFERENCE",
+        "clue": "A link used to access an object in memory.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "OBJECTREF",
+        "clue": "A reference pointing to an object instance.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "STATICVAR",
+        "clue": "A variable shared among all instances of a class.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "INSTANCEVAR",
+        "clue": "A variable that belongs to a specific object.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "OPTIMIZATION",
+        "clue": "A process of improving program performance.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "EXCEPTIONHAND",
+        "clue": "A mechanism used to handle runtime errors.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "BASECASE",
+        "clue": "A condition that stops recursive calls.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "ALGORITHMIC",
+        "clue": "A structured approach to problem solving.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "FLOWCONTROL",
+        "clue": "The order in which instructions are executed.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "MULTICLASS",
+        "clue": "A system involving multiple interacting classes.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "OBJECTREL",
+        "clue": "A relationship between objects in a program.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "METHODOVER",
+        "clue": "A concept where methods have variations in behavior.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "CLASSBASED",
+        "clue": "A programming style based on classes and objects.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "DATAPROCESS",
+        "clue": "A system for handling and transforming data.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "RUNTIMEENV",
+        "clue": "The environment where a program executes.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "COMPILATION",
+        "clue": "The process of converting code into machine form.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "EXCEPTION",
+        "clue": "An event that disrupts normal program flow.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "COMPILER",
+        "clue": "Translates code into machine language.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "MONITORING",
+        "clue": "Watching system activity in real time.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "SANITIZER",
+        "clue": "Cleans and validates user input.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "GENERATOR",
+        "clue": "Produces data or values on demand.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "OPTIMIZER",
+        "clue": "Improves the performance of a program.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "FULLSTACK",
+        "clue": "Covers both frontend and backend development.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "FRAMEWORK",
+        "clue": "A structure that provides a foundation for software.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "ENDPOINT",
+        "clue": "An API access point.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "PROTOCOL",
+        "clue": "A set of rules for communication.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "VERSIONING",
+        "clue": "Tracking changes in code over time.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "BRANCHING",
+        "clue": "Creating separate versions of code.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "MERGING",
+        "clue": "Combining different code changes together.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "DEPLOYING",
+        "clue": "Releasing an application to users.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "ENCRYPTION",
+        "clue": "Protecting data by converting it to a secure format.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "DECRYPTION",
+        "clue": "Unlocking encrypted data back to its original form.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "VALIDATION",
+        "clue": "Checking that data meets required conditions.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "STACKDATA",
+        "clue": "A LIFO data structure.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "BUILDING",
+        "clue": "Compiling a project into a runnable form.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "DATAMODEL",
+        "clue": "A design structure for organizing data.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "APPLOGIC",
+        "clue": "The rules and behavior of a program.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "ROUTING",
+        "clue": "Directing requests to the correct handler.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "SESSIONID",
+        "clue": "A unique identifier for a user session.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "CACHEDATA",
+        "clue": "Stored data for quick access.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "QUERYDATA",
+        "clue": "Requesting specific data from a database.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "STRUCTURE",
+        "clue": "A custom data type grouping related fields.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "HASHTABLE",
+        "clue": "A data structure using key-value pairs.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "TRYCATCH",
+        "clue": "A block used to handle runtime errors.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "FINALLY",
+        "clue": "A block that always executes after try-catch.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "BREAKPOINT",
+        "clue": "A marker that pauses execution during debugging.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "LOCALIZATION",
+        "clue": "Adapting software to a specific language or region.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "LOGICALNOT",
+        "clue": "A logical operation that reverses a condition.",
+        "difficulty": "EASY"
+    },
+    {
+        "words": "MANAGEMENT",
+        "clue": "Organizing and controlling system resources effectively.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "MANIPULATION",
+        "clue": "Modifying or changing data within a program.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "MEASUREMENT",
+        "clue": "Evaluating system performance or metrics.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "RECOGNITION",
+        "clue": "Identifying patterns or inputs within data.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "REGISTRATION",
+        "clue": "Recording or storing information in a system.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "REPRESENTATION",
+        "clue": "How data is displayed or structured.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "RESOLUTION",
+        "clue": "Solving a problem or determining a result.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "RESTORATION",
+        "clue": "Recovering lost or damaged data.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "RETRIEVAL",
+        "clue": "Accessing stored data from a system.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "TRANSFORMATION",
+        "clue": "Changing data from one format or structure to another.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "TRANSLATION",
+        "clue": "Converting code from one language to another.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "TRANSMISSION",
+        "clue": "Sending data from one system to another.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "VERIFICATION",
+        "clue": "Ensuring the system works as intended.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "METHODCALL",
+        "clue": "The process of executing a function or method.",
+        "difficulty": "EASY"
+    },
+    {
+        "words": "VISUALIZATION",
+        "clue": "Presenting data in graphical or visual form.",
+        "difficulty": "MEDIUM"
+    },
+    {
+        "words": "INITIALIZATION",
+        "clue": "Assigning an initial value to a variable.",
+        "difficulty": "EASY"
+    },
+    {
+        "words": "RETURNVALUE",
+        "clue": "The value produced after a function execution.",
+        "difficulty": "EASY"
+    },
+    {
+        "words": "DIRECTORY",
+        "clue": "A folder that stores files.",
+        "difficulty": "EASY"
+    },
+    {
+        "words": "LINEARSEARCH",
+        "clue": "A search method that checks elements one by one.",
+        "difficulty": "EASY"
+    },
+    {
+        "words": "LOGICALAND",
+        "clue": "A logical operation requiring both conditions true.",
+        "difficulty": "EASY"
+    },
+    {
+        "words": "PARAMETER",
+        "clue": "An input defined inside a function.",
+        "difficulty": "EASY"
+    },
+    {
+        "words": "CLONING",
+        "clue": "Copying a repository to a local machine.",
+        "difficulty": "EASY"
+    },
+    {
+        "words": "METHODDEF",
+        "clue": "A definition that describes a method structure.",
+        "difficulty": "EASY"
+    },
+    {
+        "words": "LOGICALOR",
+        "clue": "A logical operation requiring one condition true.",
+        "difficulty": "EASY"
+    },
+    {
+        "words": "LOGOUTPUT",
+        "clue": "Recorded output from a running system.",
+        "difficulty": "EASY"
+    },
+    {
+        "words": "CLASSDEF",
+        "clue": "A definition that describes a class structure.",
+        "difficulty": "EASY"
+    },
+    
+    {
+        "words": "FRONTEND",
+        "clue": "The user interface part of an application.",
+        "difficulty": "EASY"
+    },
+    {
+        "words": "BACKEND",
+        "clue": "The server-side processing of an application.",
+        "difficulty": "EASY"
+    }
+]
